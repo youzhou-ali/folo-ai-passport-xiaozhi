@@ -1,3 +1,5 @@
+<p align="right"><a href="README.zh_CN.md">简体中文</a> · <strong>English</strong></p>
+
 # FoloToy AI Passport (ai-passport)
 
 Board definition that lets the XiaoZhi voice assistant run on the
@@ -41,6 +43,28 @@ The three physical keys map to XiaoZhi's voice-assistant actions:
 
 Because the ladder shares one ADC pin, XiaoZhi reads it as three
 independent ADC buttons (the same pattern as the ESP-BOX-Lite).
+
+## Eye companion interface
+
+The portrait screen uses a pair of rounded, glowing eyes on a dark background.
+Idle eyes breathe, glance and blink; listening eyes open attentively; recognized
+user speech triggers an upward, amber thinking glance; answering eyes pulse.
+Happy cloud emotions produce mint smiling arches, and errors produce a soft
+coral expression. Temporary emotions return to the conversation state after
+three seconds. These animations use LVGL shapes rather than decoded video.
+
+Subtitles wrap in a fixed area below the eyes. Overflow scrolls vertically at
+20 pixels per second, with a pause at each end. The last reply remains readable
+after the conversation ends and resets when the next conversation starts.
+Existing Chinese assets and dynamic glyph support remain in use.
+
+After 60 seconds of idle time, the LCD and backlight turn off and eye animation
+stops. Active conversations, provisioning, updates and the first reading pass
+of a long subtitle keep the screen on. Any button wakes the screen and performs
+its normal action in the same press; OK starts a conversation. Brightness is
+restored from the existing setting. Screen-off does not disconnect Wi-Fi or
+erase configuration. This ESP32-C3 build uses the OK button instead of voice
+wake-up.
 
 ## Notes / calibration
 

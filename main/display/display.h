@@ -1,6 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include "device_state.h"
 #include "emoji_collection.h"
 #include "text_glyph.h"
 
@@ -41,6 +42,7 @@ public:
     virtual ~Display();
 
     virtual void SetStatus(const char* status);
+    virtual void OnDeviceStateChanged(DeviceState state) { (void)state; }
     virtual void ShowNotification(const char* notification, int duration_ms = 3000);
     virtual void ShowNotification(const std::string& notification, int duration_ms = 3000);
     virtual void SetEmotion(const char* emotion);

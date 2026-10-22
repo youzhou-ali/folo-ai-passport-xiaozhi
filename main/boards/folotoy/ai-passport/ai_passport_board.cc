@@ -1,11 +1,12 @@
-#include "wifi_board.h"
-#include "display/lcd_display.h"
-#include "codecs/es8311_audio_codec.h"
 #include "application.h"
-#include "button.h"
-#include "config.h"
 #include "assets/lang_config.h"
+#include "button.h"
+#include "codecs/es8311_audio_codec.h"
+#include "config.h"
 #include "cw2017_battery_monitor.h"
+#include "display/lcd_display.h"
+#include "eye_display.h"
+#include "wifi_board.h"
 
 #include <esp_log.h>
 #include <esp_lcd_panel_vendor.h>
@@ -31,7 +32,7 @@ private:
     i2c_master_bus_handle_t codec_i2c_bus_;
     Button* adc_button_[kAdcButtonNum];
     adc_oneshot_unit_handle_t adc_handle_ = nullptr;
-    LcdDisplay* display_;
+    PassportEyeDisplay* display_;
     Cw2017BatteryMonitor* battery_;
 
     void InitializeCodecI2c() {
@@ -55,6 +56,7 @@ private:
     }
 
     void ChangeVolume(int delta) {
+        display_->OnUserActivity();
         auto codec = GetAudioCodec();
         auto volume = codec->output_volume() + delta;
         if (volume > 100) {
@@ -68,6 +70,7 @@ private:
     }
 
     void ToggleChat() {
+        display_->OnUserActivity();
         auto& app = Application::GetInstance();
         if (app.GetDeviceState() == kDeviceStateStarting) {
             EnterWifiConfigMode();
@@ -117,6 +120,7 @@ private:
         });
         up->OnLongPress([this]() {
             Application::GetInstance().Schedule([this]() {
+                display_->OnUserActivity();
                 GetAudioCodec()->SetOutputVolume(100);
                 GetDisplay()->ShowNotification(Lang::Strings::MAX_VOLUME);
             });
@@ -128,6 +132,7 @@ private:
         });
         down->OnLongPress([this]() {
             Application::GetInstance().Schedule([this]() {
+                display_->OnUserActivity();
                 GetAudioCodec()->SetOutputVolume(0);
                 GetDisplay()->ShowNotification(Lang::Strings::MUTED);
             });
@@ -210,10 +215,9 @@ private:
         esp_lcd_panel_mirror(panel, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y);
         esp_lcd_panel_disp_on_off(panel, true);
 
-        display_ = new SpiLcdDisplay(panel_io, panel,
-                                     DISPLAY_WIDTH, DISPLAY_HEIGHT,
-                                     DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y,
-                                     DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
+        display_ = new PassportEyeDisplay(panel_io, panel, DISPLAY_WIDTH, DISPLAY_HEIGHT,
+                                          DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X,
+                                          DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
     }
 
 public:
